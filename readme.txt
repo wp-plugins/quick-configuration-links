@@ -3,7 +3,7 @@ Contributors: whiteshadow
 Donate link: http://w-shadow.com/
 Tags: configuration, admin, plugins, settings, usability, menu
 Requires at least: 2.5
-Tested up to: 2.7
+Tested up to: 2.9
 Stable tag: 1.2
 
 Automagically adds a "Settings" link to every active plugin on the "Plugins" page.
