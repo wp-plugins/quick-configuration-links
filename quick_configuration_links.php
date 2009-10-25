@@ -3,7 +3,7 @@
 Plugin Name: Quick Configuration Links
 Plugin URI: http://w-shadow.com/blog/2008/10/15/quick-configuration-links-for-all-plugins-a-wordpress-hack/
 Description: Attempts to automagically add a "Settings" link to every active plugin on this page.
-Version: 1.2
+Version: 1.3
 Author: Janis Elsts
 Author URI: http://w-shadow.com/blog/
 */
@@ -97,9 +97,7 @@ class PluginConfigurationLink {
 				if (in_array($detected, $exceptions)) continue;
 				$detected = $this->plugin_dirname($detected);
 				
-				if (!isset($this->plugin_configuration_pages[$detected])) {
-					$this->plugin_configuration_pages[$detected] = array($topmenu, $subitem);
-				}
+				$this->plugin_configuration_pages[$detected][] = array($topmenu, $subitem);
 			}
 		}
 		
@@ -125,11 +123,8 @@ class PluginConfigurationLink {
 					//directly calling a plugin file instead of a hook.
 					if (defined('WP_PLUGIN_DIR') && file_exists(WP_PLUGIN_DIR . "/$subitem[2]")){
 						$dir = $this->plugin_dirname($subitem[2]);
-						//Is there already a page set for this plugin? 
-						//if (!isset($this->plugin_configuration_pages[$dir])) {
-							//First encounter. Save the menu info. 
-							$this->plugin_configuration_pages[$dir][] = array($topmenu, $subitem);
-						//}
+						//Save the menu info. 
+						$this->plugin_configuration_pages[$dir][] = array($topmenu, $subitem);
 					}
 					continue;
 				};
@@ -145,7 +140,7 @@ class PluginConfigurationLink {
 				$filename = '';
 				
 				//What is the nature of the hook? Function, class method, or what?
-				if (is_string($handler)){
+				if (is_string($handler) && function_exists($handler)){
 					//It's a function, plain and simple
 					$func = new ReflectionFunction($handler);
 					$filename = $func->getFileName();
@@ -157,7 +152,7 @@ class PluginConfigurationLink {
 					$filename = $class->getFileName();
 					unset($class);
 					
-				} else if (is_string($handler[0])){
+				} else if (is_string($handler[0]) && class_exists($handler[0]) ){
 					//It's a static method call; get the filename from the class definition.
 					$class = new ReflectionClass($handler[0]);
 					$filename = $class->getFileName();
@@ -167,14 +162,11 @@ class PluginConfigurationLink {
 				if (!$filename) continue;
 				//Get the plugin's directory name 
 				$dir = $this->plugin_dirname($filename);
-				//Is there already a page set for this plugin? 
-				//if (!isset($this->plugin_configuration_pages[$dir])) {
-					//First encounter. Save the menu info. 
-					$this->plugin_configuration_pages[$dir][] = array($topmenu, $subitem);
-				//}
+				//Save the menu info. 
+				$this->plugin_configuration_pages[$dir][] = array($topmenu, $subitem);
+				
 			} //inner loop
 		}//outer loop
-		
 	}
 	
   /**
@@ -219,7 +211,6 @@ class PluginConfigurationLink {
 				else
 					$links[] = "<a href='".$conf[0].'?page='.$conf[1][2]."'>" . __('Settings') . "</a>";
 				
-				//$links[] = "<a href='".$conf[0].'?page='.$conf[1][2]."'>" . __('Settings') . "</a>";
 			}
 		}
 		return $links;
