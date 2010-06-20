@@ -3,7 +3,7 @@
 Plugin Name: Quick Configuration Links
 Plugin URI: http://w-shadow.com/blog/2008/10/15/quick-configuration-links-for-all-plugins-a-wordpress-hack/
 Description: Attempts to automagically add a "Settings" link to every active plugin on this page.
-Version: 1.3
+Version: 1.4
 Author: Janis Elsts
 Author URI: http://w-shadow.com/blog/
 */
@@ -68,6 +68,7 @@ class PluginConfigurationLink {
 			}
 			$this->plugin_configuration_pages[$plugin] = $best;
 		}
+		
 	}
 	
 	function find_by_filename(){
@@ -167,6 +168,7 @@ class PluginConfigurationLink {
 				
 			} //inner loop
 		}//outer loop
+		
 	}
 	
   /**
@@ -194,8 +196,15 @@ class PluginConfigurationLink {
    * @return array
    */
 	function plugin_action_links($links, $file){
-		//Do nothing if there's already some kind of custom link there.
-		if ( (count($links) > 2) || has_filter('plugin_action_links_'.$file) ) return $links; 
+		//Do nothing if the plugin intends to add its own link.
+		if ( has_filter('plugin_action_links_'.$file) ) return $links;
+		//Also do nothing if there's already a custom link there
+		$native_actions = array('deactivate', 'edit', 'activate');
+		foreach($links as $id => $link){
+			if ( !in_array($id, $native_actions) || !is_string($id) ){
+				return $links;
+			}
+		}
 		
 		//I identify plugins by their directory
 		$plugin = $this->plugin_dirname($file);
@@ -205,11 +214,7 @@ class PluginConfigurationLink {
 			//Check privileges
 			if (current_user_can($conf[1][1])) {
 				//Add the "Settings" link
-				$menu_hook = get_plugin_page_hook($conf[0], $conf[1][2]);
-				if ( file_exists(WP_PLUGIN_DIR . "/{$conf[1][2]}") || !empty($menu_hook))
-					$links[] = "<a href='admin.php?page={$conf[1][2]}'>". __('Settings') ."</a>";
-				else
-					$links[] = "<a href='".$conf[0].'?page='.$conf[1][2]."'>" . __('Settings') . "</a>";
+				$links[] = "<a href='".$conf[0].'?page='.$conf[1][2]."'>" . __('Settings') . "</a>";
 				
 			}
 		}
