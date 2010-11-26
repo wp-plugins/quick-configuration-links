@@ -3,7 +3,7 @@
 Plugin Name: Quick Configuration Links
 Plugin URI: http://w-shadow.com/blog/2008/10/15/quick-configuration-links-for-all-plugins-a-wordpress-hack/
 Description: Attempts to automagically add a "Settings" link to every active plugin on this page.
-Version: 1.4
+Version: 1.4.1
 Author: Janis Elsts
 Author URI: http://w-shadow.com/blog/
 */
@@ -215,7 +215,6 @@ class PluginConfigurationLink {
 			if (current_user_can($conf[1][1])) {
 				//Add the "Settings" link
 				$links[] = "<a href='".$conf[0].'?page='.$conf[1][2]."'>" . __('Settings') . "</a>";
-				
 			}
 		}
 		return $links;
