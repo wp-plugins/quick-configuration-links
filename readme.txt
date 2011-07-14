@@ -4,20 +4,21 @@ Donate link: http://w-shadow.com/
 Tags: configuration, admin, plugins, settings, usability, menu
 Requires at least: 2.5
 Tested up to: 3.2
-Stable tag: 1.4.1
+Stable tag: 1.4.2
 
 Automagically adds a "Settings" link to every active plugin on the "Plugins" page.
 
 == Description ==
 
-This plugins makes it easy to acccess every plugin's configuration page without hunting through the entire dashboard menu. It automatically scans the menu structure to find configuration-related entries created by other plugins. Then it adds an appropriate "Settings" link to each active plugin on the "Plugins" page (right next to the "Deactivate" and "Edit" links). Lab trials shown success rate over 95%
+This plugin will add a "Settings" to every active plugin listed on the "Plugins" page (right next to the "Deactivate" and "Edit" links). This makes it easy to acccess plugin configuration without hunting through the entire dashboard menu. 
+
+The plugin finds the right page to link to by automatically scanning through the WordPress menu structure to detect configuration-related plugin pages. Lab trials shown success rate of over 95%.
 
 Additional notes : 
 
-* For best results, PHP 5 or later is recommended.
-* If a plugin has no menu entries, no "Settings" link will be shown for it.
-* On the other hand, if a plugin has only one menu entry the link will always point to that page, even it has nothing to do with configuration. It's a feature ;)
-* "Quick Configuration Links" will skip plugins that already add custom action link(s) on their own.
+* Works best with PHP 5+
+* *Quick Configuration Links* will automatically skip plugins that already add their own custom link(s) to their "Plugins" page listing.
+* If a plugin has only one menu entry, the "Settings" link will always point to that page - even it has nothing to do with configuration. This is a feature.
 
 == Installation ==
 
