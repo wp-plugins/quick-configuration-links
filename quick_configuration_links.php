@@ -108,10 +108,12 @@ class PluginConfigurationLink {
 		global $submenu, $wp_filter;
 		
 		$items = $submenu;
-		//Move the "Settings" menu to the start of the array 
-		unset($items['options-general.php']);
-		$items['options-general.php'] = $submenu['options-general.php'];
-		$items = array_reverse($items);
+		if ( isset($submenu['options-general.php']) ) {
+			//Move the "Settings" menu to the start of the array 
+			unset($items['options-general.php']);
+			$items['options-general.php'] = $submenu['options-general.php'];
+			$items = array_reverse($items);
+		}
 		
 		//Check all menus for plugin pages
 		foreach ($items as $topmenu => $item){
