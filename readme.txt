@@ -4,7 +4,7 @@ Donate link: http://w-shadow.com/
 Tags: configuration, admin, plugins, settings, usability, menu
 Requires at least: 2.5
 Tested up to: 4.2-alpha.
-Stable tag: 1.4.4
+Stable tag: 1.4.5
 
 Automagically adds a "Settings" link to every active plugin on the "Plugins" page.
 
