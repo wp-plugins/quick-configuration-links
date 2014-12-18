@@ -3,7 +3,7 @@ Contributors: whiteshadow
 Donate link: http://w-shadow.com/
 Tags: configuration, admin, plugins, settings, usability, menu
 Requires at least: 2.5
-Tested up to: 4.0-alpha
+Tested up to: 4.2-alpha.
 Stable tag: 1.4.4
 
 Automagically adds a "Settings" link to every active plugin on the "Plugins" page.
@@ -29,3 +29,9 @@ Install it just like any other plugin :
 3. Activate the plugin through the 'Plugins' menu in WordPress
 
 You may need to refresh the page before the "Settings" will appear.
+
+== Changelog ==
+
+= 1.4.5 =
+* Tested up to WP 4.2-alpha.
+* Fixed a URL generation bug that caused the plugin to display non-functioning "Settings" links for plugins that place their settings page under a custom top level menu (e.g. "My Plugin -> Settings").
