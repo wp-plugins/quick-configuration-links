@@ -216,14 +216,143 @@ class PluginConfigurationLink {
 			//Check privileges
 			if (current_user_can($conf[1][1])) {
 				//Add the "Settings" link
-				$links[] = "<a href='".$conf[0].'?page='.$conf[1][2]."'>" . __('Settings') . "</a>";
+				$links[] = sprintf(
+					'<a href="%s">%s</a>',
+					esc_attr(PclMenuUrlGenerator::get_menu_url($conf[0], $conf[1])),
+					__('Settings')
+				);
 			}
 		}
 		return $links;
 	}
+
 } //class
+
+
+/**
+ * Generating admin menu URLs is surprisingly difficult. There are many edge cases.
+ * This implementation was borrowed from my Admin Menu Editor plugin.
+ */
+abstract class PclMenuUrlGenerator {
+	/**
+	 * @var array A partial list of files in /wp-admin/. Correct as of WP 3.8-RC1, 2013.12.04.
+	 * When trying to determine if a menu links to one of the default WP admin pages, it's faster
+	 * to check this list than to hit the disk.
+	 */
+	private static $known_wp_admin_files = array(
+		'customize.php' => true, 'edit-comments.php' => true, 'edit-tags.php' => true, 'edit.php' => true,
+		'export.php' => true, 'import.php' => true, 'index.php' => true, 'link-add.php' => true,
+		'link-manager.php' => true, 'media-new.php' => true, 'nav-menus.php' => true, 'options-discussion.php' => true,
+		'options-general.php' => true, 'options-media.php' => true, 'options-permalink.php' => true,
+		'options-reading.php' => true, 'options-writing.php' => true, 'plugin-editor.php' => true,
+		'plugin-install.php' => true, 'plugins.php' => true, 'post-new.php' => true, 'profile.php' => true,
+		'theme-editor.php' => true, 'themes.php' => true, 'tools.php' => true, 'update-core.php' => true,
+		'upload.php' => true, 'user-new.php' => true, 'users.php' => true, 'widgets.php' => true,
+	);
+
+	/**
+	 * Get the URL for a plugin menu item.
+	 *
+	 * @param array $parent_file Parent menu slug or file name.
+	 * @param array $item Submenu item.
+	 * @return string
+	 */
+	public static function get_menu_url($parent_file, $item) {
+		$menu_url = $item[2];
+		$parent_url = !empty($parent_file) ? $parent_file : 'admin.php';
+
+		//Workaround for WooCommerce 2.1.12: For some reason, it uses "&amp;" instead of a plain "&" to separate
+		//query parameters. We need a plain URL, not a HTML-entity-encoded one.
+		//It is theoretically possible that another plugin might want to use a literal "&amp;", but its very unlikely.
+		$menu_url = str_replace('&amp;', '&', $menu_url);
+
+		if ( strpos($menu_url, '://') !== false ) {
+			return $menu_url;
+		}
+
+		if ( self::is_hook_or_plugin_page($menu_url, $parent_url) ) {
+			$base_file = self::is_wp_admin_file($parent_url) ? $parent_url : 'admin.php';
+			$url = add_query_arg(array('page' => $menu_url), $base_file);
+		} else {
+			$url = $menu_url;
+		}
+		return $url;
+	}
+
+	private static function is_hook_or_plugin_page($page_url, $parent_page_url = '') {
+		if ( empty($parent_page_url) ) {
+			$parent_page_url = 'admin.php';
+		}
+		$pageFile = self::remove_query_from($page_url);
+
+		//Files in /wp-admin are part of WP core so they're not plugin pages.
+		if ( self::is_wp_admin_file($pageFile) ) {
+			return false;
+		}
+
+		$hasHook = (get_plugin_page_hook($page_url, $parent_page_url) !== null);
+		if ( $hasHook ) {
+			return true;
+		}
+
+		$allowPathConcatenation = self::is_safe_to_append($pageFile);
+
+		$pluginFileExists = $allowPathConcatenation
+			&& ($page_url != 'index.php')
+			&& is_file(WP_PLUGIN_DIR . '/' . $pageFile);
+		if ( $pluginFileExists ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Check if a file exists inside the /wp-admin subdirectory.
+	 *
+	 * @param string $filename
+	 * @return bool
+	 */
+	private static function is_wp_admin_file($filename) {
+		//Check our hard-coded list of admin pages first. It's measurably faster than
+		//hitting the disk with is_file().
+		if ( isset(self::$known_wp_admin_files[$filename]) ) {
+			return self::$known_wp_admin_files[$filename];
+		}
+
+		//Now actually check the filesystem.
+		$adminFileExists = self::is_safe_to_append($filename)
+			&& is_file(ABSPATH . 'wp-admin/' . $filename);
+
+		//Cache the result for later. We can generally expect more than one call per top level menu URL.
+		self::$known_wp_admin_files[$filename] = $adminFileExists;
+
+		return $adminFileExists;
+	}
+
+	/**
+	 * Verify that it's safe to append a given filename to another path.
+	 *
+	 * If we blindly append an absolute path to another path, we can get something like "C:\a\b/wp-admin/C:\c\d.php".
+	 * PHP 5.2.5 has a known bug where calling file_exists() on that kind of an invalid filename will cause
+	 * a timeout and a crash in some configurations. See: https://bugs.php.net/bug.php?id=44412
+	 *
+	 * @param string $filename
+	 * @return bool
+	 */
+	private static function is_safe_to_append($filename) {
+		return (substr($filename, 1, 1) !== ':'); //Reject "C:\whatever" and similar.
+	}
+
+	public static function remove_query_from($url) {
+		$pos = strpos($url, '?');
+		if ( $pos !== false ) {
+			return substr($url, 0, $pos);
+		}
+		return $url;
+	}
+}
 
 $plugin_settings_link = new PluginConfigurationLink;
 
 } //is_admin
-?>
