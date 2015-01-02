@@ -114,6 +114,9 @@ class PluginConfigurationLink {
 			$items['options-general.php'] = $submenu['options-general.php'];
 			$items = array_reverse($items);
 		}
+		if ( empty($items) ) {
+			return;
+		} 
 		
 		//Check all menus for plugin pages
 		foreach ($items as $topmenu => $item){
