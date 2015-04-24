@@ -3,8 +3,8 @@ Contributors: whiteshadow
 Donate link: http://w-shadow.com/
 Tags: configuration, admin, plugins, settings, usability, menu
 Requires at least: 2.5
-Tested up to: 4.2-alpha.
-Stable tag: 1.4.5
+Tested up to: 4.2
+Stable tag: 1.4.6
 
 Automagically adds a "Settings" link to every active plugin on the "Plugins" page.
 
@@ -31,6 +31,9 @@ Install it just like any other plugin :
 You may need to refresh the page before the "Settings" will appear.
 
 == Changelog ==
+
+= 1.4.6 =
+* Tested up to WordPress 4.2.
 
 = 1.4.5 =
 * Tested up to WP 4.2-alpha.
